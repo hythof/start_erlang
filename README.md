@@ -79,7 +79,7 @@ chmod 0755 rebar3
 2. httpd_tcp_worker_sup の start_child() で1つのTCPストリームを処理するプロセスを起動（Erlangのプロセスはマイクロスレッドを意味します）
 3. 起動したプロセスは httpd_tcp_worker の start_link() でTCPストリームからHTTPリクエストを読み込み、HTTPレスポンスを書き込む
 
-```erlang:src/httpd_tcp_listener.erl
+```
 -module(httpd_tcp_listener).
 
 -export([start_link/0]).
@@ -111,7 +111,7 @@ accept(Listen) ->
     accept(Listen).
 ```
 
-```erlang:src/httpd_tcp_worker.erl
+```
 -module(httpd_tcp_worker).
 
 -export([start_link/1]).
@@ -135,7 +135,7 @@ response(_Request) ->
     <<"HTTP/1.0 200 OK\r\nDate: Tue, 25 Oct 2016 10:21:33 GMT\r\nConnection: close\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: 11\r\n\r\nhello world">>.
 ```
 
-```erlang:src/httpd_tcp_worker_sup.erl
+```
 -module(httpd_tcp_worker_sup).
 
 -export([start_link/0, start_child/1, init/1]).
@@ -155,7 +155,7 @@ init([]) ->
 
 また httpd_sup.erl の init([]) を編集し、追加実装した部分の起動処理を加えます。
 
-```erlang:src/httpd_sup.erl
+```
 %% ...(省略)...
 init([]) ->
     Children = [
@@ -215,7 +215,7 @@ wrk -c 100 -d 10 -t 10 http://localhost:8888/
 
 profile用のファイルを追加します。
 
-```erlang:src/httpd_profile.erl
+```
 -module(httpd_profile).                                                                   
 
 -export([run/0]).
@@ -242,7 +242,7 @@ run() ->
 wrk -c 100 -d 10 -t 1 http://localhost:8888/
 ```
 
-```text:Profile 結果の抜粋
+```
 FUNCTION                                       CALLS        %   TIME  [uS / CALLS]
 --------                                       -----  -------   ----  [----------]
 httpd_tcp_worker:process/3                       253     0.03     11  [      0.04]
@@ -255,7 +255,7 @@ httpd_tcp_worker_sup:start_child/1               254     4.99   2010  [      7.9
 
 start_child() がネックになっているのでこれを使わない形に書き換えます。
 
-```erlang:src/httpd_tcp_listener.erl
+```
 -module(httpd_tcp_listener).
 
 -export([start_link/0]).
@@ -324,7 +324,7 @@ Transfer/sec:      6.61MB
 15,380/秒から47,155/秒と3倍近く早くなりました。
 またプロファイルしてみます。
 
-```text:Profile 結果の抜粋
+```
 FUNCTION                                          CALLS        %      TIME  [uS / CALLS]
 --------                                          -----  -------      ----  [----------]
 httpd_tcp_listener:accept/1                      143313     0.17     32754  [      0.23]
@@ -339,7 +339,7 @@ erts_internal:port_command/3                     143207    17.96   3390508  [   
 アプリ部分とに時間がかかってそうな部分とボトルネック部分を抜粋しました。
 erts_internal:port_... がボトルネックなのでこれをどうにかしてみます。
 
-```erlang:src/httpd_tcp_listener.erl 
+```
 -module(httpd_tcp_listener).
 
 -export([start_link/0]).
@@ -408,7 +408,7 @@ wrk -c 100 -d 10 -t 10 http://localhost:8888/
 47,155/秒から55704/秒と少し早くなりました。
 gen_tcp:close() からも erts_internal:port_control() が呼ばれているので、代わりに erlang:port_close() を直接使ってみます。
 
-```erlang:src/httpd_tcp_listener.erl
+```
 -module(httpd_tcp_listener).
 
 -export([start_link/0]).
@@ -490,7 +490,7 @@ Erlang言語を使えばネットワークサーバが比較的簡単に書け�
 またプロファイリングと改善を繰り返せばC言語で実装されたnginxに迫る性能がでることも確認できました。
 
 最後のプログラムでHTTPリクエストを100回実行したプロファイル結果を載せておきます。
-```text:Profile 結果
+```
 FUNCTION                                       CALLS        %  TIME  [uS / CALLS]
 --------                                       -----  -------  ----  [----------]
 gen:start/6                                        2     0.00     0  [      0.00]
