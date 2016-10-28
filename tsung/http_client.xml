@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE tsung SYSTEM "/usr/share/tsung/tsung-1.0.dtd">
+<tsung loglevel="notice" version="1.0">
+
+  <clients>
+    <client host="localhost" use_controller_vm="true"/>
+  </clients>
+  
+<servers>
+  <server host="localhost" port="80" type="tcp"></server>
+</servers>
+
+  <monitoring>
+    <monitor host="localhost" type="snmp"></monitor>
+  </monitoring>
+  
+  <load>
+   <arrivalphase phase="1" duration="10" unit="second">
+     <users interarrival="0.0000001" unit="second"></users>
+   </arrivalphase>
+  </load>
+
+ <sessions>
+  <session name="http-example" probability="100" type="ts_http">
+
+    <request> <http url="/" method="GET" version="1.1"></http> </request>
+
+  </session>
+ </sessions>
+</tsung>
