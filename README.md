@@ -6,14 +6,14 @@ Ubuntu 16.04でErlangのインストールから簡単なサンプルアプリ�
 
 ### 依存ファイルをインストール
 
-```shell-session
+```
 sudo apt-get install build-essential libncurses5-dev openssl libssl-dev
 sudo apt-get install curl git-core
 ```
 
 ### Erlangのバージョン管理、Kerlをインストール
 
-```shell-session
+```
 mkdir -p ~/local/bin
 cd ~/local/bin
 curl -O https://raw.githubusercontent.com/kerl/kerl/master/kerl
@@ -22,7 +22,7 @@ chmod a+x kerl
 
 ### kerlでErlang 19.1をインストール
 
-```shell-session
+```
 ./kerl list releases
 ./kerl install 19.1 19.1
 ./kerl build 19.1 19.1
@@ -31,14 +31,14 @@ chmod a+x kerl
 
 インストールした Erlang 19.1 を有効化します。
 
-```shell-session
+```
 . ~/erlang/19.1/activate
 ```
 
 whichでみるとerlコマンドが使えるようになり、Erlangの開発環境が整いました。
 erlコマンドを実行するとErlangのshellが起動し、プログラムの動作確認などがインタラクティブに行なえます。
 
-```shell-session
+```
 which erl
 # /home/username/erlang/19.1/bin/erl
 ```
@@ -51,7 +51,7 @@ Erlangで簡単なhttpdサーバを作ってみます。
 rebarを使うとコンパイル、テスト、配布用のtar.gzの作成などがコマンド一つでできるので便利です。
 rebarは最新のversion 3を使います。version 2はDeprecatedなので注意。
 
-```shell-session
+```
 mkdir project
 cd project
 wget https://s3.amazonaws.com/rebar3/rebar3
@@ -60,7 +60,7 @@ chmod 0755 rebar3
 
 ### rebarで定形ファイル作成
 
-```shell-session
+```
 ./rebar3 new app httpd
 # ===> Writing httpd/src/httpd_app.erl
 # ===> Writing httpd/src/httpd_sup.erl
@@ -170,22 +170,21 @@ init([]) ->
 
 アプリケーションの実装が終わったので起動してみます。
 
-```shell-session
+```
 ../rebar3 compile && erl -pa _build/default/lib/*/ebin -eval 'application:start(httpd).' -noshell
 ```
 
 ブラウザからアクセスするとhello worldと表示されました。
-![hello_world.png](https://qiita-image-store.s3.amazonaws.com/0/39587/986a234b-d268-b499-6806-0aedc98279c6.png)
 
 せっかくなのでベンチマークも取ってみます。
 wrkで計測したところ、このプログラムは15,380/秒に対してnginxが90,107/秒でした。nginxの方が5.8倍程早いようです。
 
 
-```shell-session:wrkインストール
+```
 sudo apt-get install wrk
 ```
 
-```shell-session:erlang ベンチマーク
+```
 wrk -c 100 -d 10 -t 10 http://localhost/
 #Running 10s test @ http://localhost/
 #  10 threads and 100 connections
@@ -197,7 +196,7 @@ wrk -c 100 -d 10 -t 10 http://localhost/
 #Transfer/sec:     21.14MB
 ```
 
-```shell-session:nginx ベンチマーク
+```
 wrk -c 100 -d 10 -t 10 http://localhost:8888/
 #Running 10s test @ http://localhost:8888/
 #  10 threads and 100 connections
@@ -233,13 +232,13 @@ run() ->
 
 サーバを起動します。
 
-```shell-session
+```
 ../rebar3 compile && erl -pa _build/default/lib/*/ebin -eval 'httpd_profile:run(),init:stop().' -noshell 
 ```
 
 別のshellでwrkで負荷をかけます。
 
-```shell-session
+```
 wrk -c 100 -d 10 -t 1 http://localhost:8888/
 ```
 
@@ -310,7 +309,7 @@ response(_Request) ->
 
 この状態でベンチマークを取ってみます。
 
-```shell-session: 複数 accept ベンチマーク
+```
 wrk -c 100 -d 10 -t 10 http://localhost:8888/
 Running 10s test @ http://localhost:8888/
   10 threads and 100 connections
@@ -394,7 +393,7 @@ response(_Request) ->
 
 再度ベンチマークを取ります。
 
-```shell-session: acync_accept() のベンチマーク結果
+```
 wrk -c 100 -d 10 -t 10 http://localhost:8888/
 # Running 10s test @ http://localhost:8888/
 #   10 threads and 100 connections
@@ -462,7 +461,7 @@ response(_Request) ->
 
 またベンチマークします。
 
-```shell-session: port_close のベンチマーク結果
+```
 wrk -c 100 -d 10 -t 10 http://localhost:8888/
 # Running 10s test @ http://localhost:8888/
 #   10 threads and 100 connections
